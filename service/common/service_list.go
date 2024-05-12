@@ -16,13 +16,19 @@ func ComListFind[T any](model T, option Option) (list []T, count int64, err erro
 	if option.Debug {
 		DB = global.DB.Session(&gorm.Session{Logger: global.MysqlLog})
 	}
+	if option.Sort == "" {
+		option.Sort = "created_at desc"
+	}
+	query := DB.Where(model)
 
-	count = DB.Select("id").Find(&list).RowsAffected
+	count = query.Select("id").Find(&list).RowsAffected
+	//重置查询条件
+	query = DB.Where(model)
 	// 分页
 	offset := (option.Page - 1) * option.Limit
 	if offset < 0 {
 		offset = 0
 	}
-	err = DB.Limit(option.Limit).Offset(offset).Find(&list).Error
+	err = query.Limit(option.Limit).Offset(offset).Order(option.Sort).Find(&list).Error
 	return list, count, err
 }

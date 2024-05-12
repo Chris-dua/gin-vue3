@@ -12,7 +12,11 @@ func (ImagesApi) ImageRemoveView(context *gin.Context) {
 	var cr models.RemoveRequest
 	err := context.ShouldBindJSON(&cr)
 	if err != nil {
-		res.FailWithCode(res.ArgumentError, context)
+		res.FailWithError(err, &cr, context)
+		return
+	}
+	if len(cr.IDList) == 0 {
+		res.FailWithMessage("无效的请求，id_list 不能为空", context)
 		return
 	}
 

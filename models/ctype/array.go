@@ -17,6 +17,6 @@ func (t *Array) Scan(value interface{}) error {
 	return nil
 }
 
-func (t Array) ToValue() (driver.Value, error) {
+func (t Array) Value() (driver.Value, error) {
 	return strings.Join(t, "\n"), nil
 }
