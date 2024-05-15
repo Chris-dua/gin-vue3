@@ -8,5 +8,4 @@ func (router RouterGroup) AdvertRouter() {
 	router.GET("adverts", advertApi.AdvertListView)
 	router.PUT("adverts/:id", advertApi.AdvertUpdateView)
 	router.DELETE("adverts", advertApi.AdvertRemoveView)
-
 }

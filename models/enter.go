@@ -16,3 +16,6 @@ type PageInfo struct {
 	Limit int    `form:"limit"`
 	Sort  string `form:"sort"`
 }
+type ESIDRequest struct {
+	ID string `json:"id" form:"id" uri:"id"`
+}

@@ -22,11 +22,13 @@ func main() {
 	global.DB = core.InitGorm()
 	// 连接redis
 	global.Redis = core.ConnectRedis()
+	global.ESClient = core.EsConnect()
 	option := flag.Parse()
 	if flag.IsWebStop(option) {
 		flag.SwitchOption(option)
 		return
 	}
+
 	addr := global.Config.System.Addr()
 	router := routers.InitRouter()
 	err := router.Run(addr)
