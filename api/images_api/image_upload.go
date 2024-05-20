@@ -9,6 +9,7 @@ import (
 	"gvb_server/models/res"
 	"gvb_server/plugins/qiniu"
 	"gvb_server/utils"
+	"gvb_server/utils/jwts"
 	"io"
 	"io/fs"
 	"os"
@@ -82,6 +83,12 @@ func (ImagesApi) ImageUploadView(context *gin.Context) {
 		res.FailWithMessage(err.Error(), context)
 		return
 	}
+	_claims, _ := context.Get("claims")
+	claims := _claims.(*jwts.CustomClaims)
+	if claims.Role == 3 {
+		res.FailWithMessage("游客用户不可上传图片", context)
+		return
+	}
 	fileList, ok := form.File["images"]
 	if !ok {
 		res.FailWithMessage("不存在的文件", context)
@@ -137,6 +144,7 @@ func (ImagesApi) ImageUploadView(context *gin.Context) {
 			UploadToDB(qiNiuFilePath, imageHash, fileName, ctype.QiNiu)
 			continue
 		}
+		global.Log.Debug(filePath)
 		err = context.SaveUploadedFile(file, filePath)
 		if err != nil {
 			global.Log.Error(err)
@@ -148,7 +156,7 @@ func (ImagesApi) ImageUploadView(context *gin.Context) {
 		resList = append(resList, AppendResList(file.Filename, true, msg))
 
 		// 图片入库
-		UploadToDB(filePath, imageHash, fileName, ctype.Local)
+		UploadToDB("/"+filePath, imageHash, fileName, ctype.Local)
 
 	}
 	res.OkWithData(resList, context)

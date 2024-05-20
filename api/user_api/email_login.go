@@ -39,9 +39,9 @@ func (UserApi) EmailLoginView(context *gin.Context) {
 	}
 	// 登录成功，生成token
 	token, err := jwts.GenToken(jwts.JwtPayLoad{
-		NickName: userModel.NickName,
-		Role:     int(userModel.Role),
-		UserID:   userModel.ID,
+		//NickName: userModel.NickName,
+		Role:   int(userModel.Role),
+		UserID: userModel.ID,
 	})
 	if err != nil {
 		global.Log.Error(err)

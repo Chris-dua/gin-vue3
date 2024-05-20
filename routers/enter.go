@@ -5,6 +5,7 @@ import (
 	swaggerFiles "github.com/swaggo/files"
 	gs "github.com/swaggo/gin-swagger"
 	"gvb_server/global"
+	"net/http"
 )
 
 type RouterGroup struct {
@@ -27,6 +28,10 @@ func InitRouter() *gin.Engine {
 	routerGroupApp.TagRouter()
 	routerGroupApp.ArticleRouter()
 	routerGroupApp.DiggRouter()
+	routerGroupApp.RoleRouter()
+	router.StaticFS("uploads", http.Dir("uploads"))
+	// 第一个uploads是web中访问的路径
+	// 第二个uploads是项目根路径下的uploads
 
 	return router
 }

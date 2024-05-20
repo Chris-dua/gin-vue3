@@ -6,9 +6,17 @@ import (
 	"gvb_server/global"
 	"gvb_server/models"
 	"gvb_server/models/res"
+	"gvb_server/utils/jwts"
 )
 
 func (ImagesApi) ImageRemoveView(context *gin.Context) {
+
+	_claims, _ := context.Get("claims")
+	claims := _claims.(*jwts.CustomClaims)
+	if claims.Role == 3 {
+		res.FailWithMessage("游客用户不可删除图片", context)
+		return
+	}
 	var cr models.RemoveRequest
 	err := context.ShouldBindJSON(&cr)
 	if err != nil {

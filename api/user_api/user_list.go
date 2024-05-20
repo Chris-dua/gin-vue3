@@ -10,19 +10,32 @@ import (
 	"gvb_server/utils/jwts"
 )
 
+type UserResponse struct {
+	models.UserModel
+	RoleID int `json:"role_id"`
+}
+
+type UserListRequest struct {
+	models.PageInfo
+	Role int `json:"role" form:"role"`
+}
+
 func (UserApi) UserListView(context *gin.Context) {
 
 	_claims, _ := context.Get("claims")
 	claims := _claims.(*jwts.CustomClaims)
 
-	var page models.PageInfo
-	if err := context.ShouldBindQuery(&page); err != nil {
+	var userListReq UserListRequest
+	if err := context.ShouldBindQuery(&userListReq); err != nil {
 		res.FailWithCode(res.ArgumentError, context)
 		return
 	}
-	var users []models.UserModel
-	list, count, _ := common.ComListFind(models.UserModel{}, common.Option{
-		PageInfo: page,
+	var users = make([]UserResponse, 0)
+	list, count, _ := common.ComListFind(models.UserModel{
+		Role: ctype.Role(userListReq.Role),
+	}, common.Option{
+		PageInfo: userListReq.PageInfo,
+		Likes:    []string{"nick_name", "user_name"},
 	})
 	for _, user := range list {
 		if ctype.Role(claims.Role) != ctype.PermissionAdmin {
@@ -32,7 +45,11 @@ func (UserApi) UserListView(context *gin.Context) {
 		user.Tel = desens.DesensitizationTel(user.Tel)
 		user.Email = desens.DesensitizationEmail(user.Email)
 		// 脱敏
-		users = append(users, user)
+		users = append(users, UserResponse{
+			UserModel: user,
+			RoleID:    int(user.Role),
+		})
+		//users = append(users, user)
 	}
 
 	res.OkWithList(users, count, context)
